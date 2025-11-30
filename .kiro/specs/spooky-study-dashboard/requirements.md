@@ -40,7 +40,7 @@ The Spooky Study Dashboard is a Halloween-themed productivity application that g
 #### Acceptance Criteria
 
 1. WHEN a user selects a theme palette THEN the Study Dashboard SHALL apply the palette colors to all interface elements
-2. THE Study Dashboard SHALL provide four theme palettes: Pumpkin Glow, Vampire Crimson, Witch Forest, and Candy Corn Pastel
+2. THE Study Dashboard SHALL provide four theme palettes: Vampire Crimson, Witch Forest, Haunted Midnight, and Graveyard
 3. WHEN a user changes the theme palette THEN the Study Dashboard SHALL persist the selection to Local Storage
 4. WHEN the Study Dashboard loads THEN the Study Dashboard SHALL restore the previously selected theme palette from Local Storage
 
