@@ -11,8 +11,8 @@ const GHOST_AUDIO_MAP = {
 };
 
 const SCARY_AUDIO_FILES = [
-  '/scary-1.mp3',
-  '/scary-2.mp3'
+  '/haunt-1.mp3',
+  '/haunt-2.mp3'
 ];
 
 export function AudioManager({ onTimerEvent }) {
