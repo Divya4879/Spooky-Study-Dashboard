@@ -51,26 +51,35 @@ src/
 │   │   ├── MetricsCards.jsx
 │   │   ├── ProductivityChart.jsx
 │   │   └── StatsDisplay.jsx
-│   └── Achievements/
-│       ├── AchievementList.jsx
-│       └── AchievementNotification.jsx
+│   ├── Achievements/
+│   │   ├── AchievementList.jsx
+│   │   └── AchievementNotification.jsx
+│   ├── Audio/
+│   │   └── AudioManager.jsx
+│   ├── LandingPage.jsx
+│   ├── ErrorBoundary.jsx
+│   └── ScreenReaderAnnouncer.jsx
 ├── hooks/
 │   ├── useTimer.js
 │   ├── useLocalStorage.js
 │   ├── useAchievements.js
-│   └── useMetrics.js
+│   ├── useMetrics.js
+│   └── index.js
 ├── context/
 │   ├── AppContext.jsx
 │   └── ThemeContext.jsx
 ├── utils/
 │   ├── storage.js
 │   ├── calculations.js
-│   └── achievements.js
+│   ├── achievements.js
+│   └── colorContrast.js
 ├── constants/
 │   ├── themes.js
 │   ├── ghosts.js
 │   └── achievements.js
-└── App.jsx
+├── App.jsx
+├── main.jsx
+└── index.css
 ```
 
 ## Components and Interfaces
@@ -78,9 +87,12 @@ src/
 ### Timer System
 
 **TimerDisplay Component**
-- Displays current countdown time in MM:SS format
-- Shows session type indicator (Study/Rest)
-- Visual progress ring animation
+- Displays current countdown time in MM:SS format within a coffin-shaped container
+- Shows session type indicator (📚 CURSED STUDY SESSION or ☠️ HAUNTED REST TIME)
+- Visual progress bar at bottom of coffin
+- Decorative elements: skull emoji, bones, cross, coffin handles
+- Status indicator showing ACTIVE (with fire emoji) or PAUSED (with pause icon)
+- Accessible time descriptions for screen readers
 
 **TimerControls Component**
 - Start/Pause/Reset buttons
@@ -119,19 +131,49 @@ interface Theme {
 }
 
 const THEMES = {
-  pumpkinGlow: { /* orange/yellow palette */ },
-  vampireCrimson: { /* red/black palette */ },
-  witchForest: { /* green/purple palette */ },
-  candyCornPastel: { /* pastel orange/yellow/white */ }
+  vampireCrimson: {
+    name: 'Vampire Crimson',
+    primary: '#8B0000',      // Dark red
+    secondary: '#DC143C',    // Crimson
+    accent: '#FF0000',       // Bright red
+    background: '#0D0208',   // Almost black
+    text: '#FFE4E1',         // Misty rose
+  },
+  witchForest: {
+    name: 'Witch Forest',
+    primary: '#2D5016',      // Forest green
+    secondary: '#6B4C9A',    // Purple
+    accent: '#9D4EDD',       // Bright purple
+    background: '#0A0E0A',   // Very dark green
+    text: '#E8F5E9',         // Light green
+  },
+  hauntedMidnight: {
+    name: 'Haunted Midnight',
+    primary: '#4A148C',      // Deep purple
+    secondary: '#7B1FA2',    // Purple
+    accent: '#BA68C8',       // Light purple
+    background: '#0D0221',   // Dark navy
+    text: '#E1BEE7',         // Light lavender
+  },
+  graveyard: {
+    name: 'Graveyard',
+    primary: '#424242',      // Dark gray
+    secondary: '#616161',    // Medium gray
+    accent: '#00E676',       // Toxic green
+    background: '#121212',   // Near black
+    text: '#E0E0E0',         // Light gray
+  }
 };
 ```
 
 ### Ghost Companion System
 
 **GhostCompanion Component**
-- Renders selected ghost variant with current emotion
-- Handles animation states based on timer status
-- Triggers jumpscare animations randomly
+- Renders selected ghost variant with current emotion using Framer Motion
+- Handles three animation states: idle (floating), studying (active bouncing), resting (slow floating)
+- Displays ghost name, description, and current status
+- Shows emotion indicator emoji (😴 for sleepy, 😈 for mischievous)
+- Animated status indicator dot that pulses when timer is active
 
 **Ghost Configuration**
 ```typescript
@@ -148,8 +190,10 @@ interface GhostState {
 
 **Jumpscare System**
 - Random trigger during active study sessions (5-15% chance per minute)
-- Non-blocking animation overlay
+- Non-blocking animation overlay using Framer Motion
+- 1-second animation duration with automatic dismissal
 - Increments mischief counter for achievement tracking
+- Displays ghost variant-specific emoji during jumpscare
 
 ### Metrics and Analytics
 
@@ -235,11 +279,11 @@ const ACHIEVEMENTS = [
 ```typescript
 interface StoredData {
   preferences: {
-    theme: string;
-    ghostVariant: GhostVariant;
     studyDuration: number;
     restDuration: number;
     cyclesPlanned: number;
+    theme: string;
+    ghostVariant: GhostVariant;
   };
   sessionHistory: SessionRecord[];
   achievements: {
@@ -249,14 +293,15 @@ interface StoredData {
     }
   };
   mischiefCount: number;
+  theme: string;  // Also stored separately for ThemeContext
 }
 ```
 
 **Storage Utilities**
-- `saveToStorage(key, data)`: Serializes and stores data
-- `loadFromStorage(key, defaultValue)`: Retrieves and deserializes data with fallback
-- `clearStorage()`: Resets all stored data
-- Error handling for quota exceeded and corrupted data scenarios
+- `saveToStorage(key, data)`: Serializes and stores data with error handling for quota exceeded
+- `loadFromStorage(key, defaultValue)`: Retrieves and deserializes data with fallback for corrupted or missing data
+- `clearStorage()`: Resets all stored data for specific application keys
+- Error handling for quota exceeded (attempts cleanup of old sessions) and corrupted data scenarios
 
 ## Data Models
 
@@ -593,16 +638,48 @@ After analyzing all acceptance criteria, several properties can be combined to e
 - requestAnimationFrame (supported in all modern browsers)
 - CSS Grid and Flexbox (supported in all modern browsers)
 
+### Implemented Features
+
+**Audio System** (AudioManager component):
+- Ghost variant-specific audio files (ghost.mp3, witch.mp3, vampire.mp3, werewolf.mp3, angel.mp3)
+- Scary audio effects (haunt-1.mp3, haunt-2.mp3) triggered on timer pause/reset
+- Success audio (success.mp3) triggered on session completion
+- Volume control with visual slider
+- Mute/unmute toggle
+- Audio overlay animations synchronized with sound effects
+
+**Landing Page**:
+- Animated entrance with floating spooky elements
+- Interactive ghost cursor follower
+- Feature showcase with hover effects
+- CRT overlay and scanline effects for vintage aesthetic
+- "Enter the Crypt" call-to-action button
+
+**Accessibility Features**:
+- Screen reader announcements for timer events and achievements
+- ARIA labels and roles throughout the application
+- Keyboard navigation support
+- Focus indicators on interactive elements
+- Skip to main content link
+- Error boundary for graceful error handling
+
+**Visual Enhancements**:
+- Extensive CSS animations for each theme (blood droplets, haunting trees, flickering moonlight, graveyard fog)
+- Coffin-shaped timer display with progress bar
+- Vintage horror typography (Creepster, Nosifer, Butcherman, Eater, Chiller, Griffy fonts)
+- CRT overlay and scanline effects throughout the app
+- Tarot card-styled metric displays with decorative corners
+
 ### Future Enhancements
 
-**Potential Features** (out of scope for initial release):
-- Sound effects for timer completion and jumpscares
+**Potential Features** (out of scope for current release):
 - Export study data as CSV
 - Cloud sync across devices
 - Custom ghost creation
 - Social features (share achievements)
-- Dark mode toggle independent of theme
 - Pomodoro technique variations (52/17, 90-minute deep work)
+- Additional ghost variants and emotions
+- Customizable jumpscare frequency
 
 ## Deployment
 
