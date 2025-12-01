@@ -2,7 +2,13 @@
 
 A Halloween-themed productivity application that gamifies study sessions with supernatural companions, atmospheric themes, and immersive audio experiences.
 
-## 🌟 Overview
+Check it out here:- https://spooky-study-dashboard.netlify.app
+
+<img width="1235" height="896" alt="image" src="https://github.com/user-attachments/assets/f74c2e16-e31a-4e70-841b-51e575668638" />
+
+---
+
+## Overview
 
 The Spooky Study Dashboard transforms traditional pomodoro timer functionality into an engaging Halloween experience. Users can customize their study environment with different supernatural themes, select ghost companions, and track their productivity through an achievement system.
 
